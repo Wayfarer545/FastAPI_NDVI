@@ -3,7 +3,7 @@ _______
 
 Postman JSON collection link: https://www.getpostman.com/collections/51555ffee2be2f09b2cc  
 DockerHub repository: https://hub.docker.com/repository/docker/wayfarer737/ndvi  
-VDS: [example server](http://151.248.121.135:9800
+VDS: on request
 
 ### General information
 REST API based on FastAPI and Uvicorn engine.  
