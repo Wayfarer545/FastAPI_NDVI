@@ -40,6 +40,10 @@ DB_USERNAME="PG username"
 DB_PWD="PG PWD"  
 DB_NAME="PG db name"  
 ```
+and finally run application:
+```bash
+& python3 run.py
+```
 ___
 ### Docker deploy:  
 Service can be used as a Docker container.  
