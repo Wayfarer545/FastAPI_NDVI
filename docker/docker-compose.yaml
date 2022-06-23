@@ -1,0 +1,27 @@
+version: '3.6'
+services:
+  FastAPI_NDVI:
+    image: wayfarer737/ndvi:latest
+    container_name: fastapi_ndvi
+    restart: on-failure
+    ports:
+      - "9800:9800"
+    environment:
+      ## Database connection
+      DB_URL: ""
+      DB_USERNAME: ""
+      DB_PWD: ""
+      DB_NAME: ""
+      ## SciHub credentials
+      SAT_USER: "user"
+      SAT_PWD: "password"
+      ## Uvicorn settings
+      SERVER_HOST: "0.0.0.0"
+      SERVER_PORT: 8000
+    volumes:
+      - /mnt/mass2/ndvi/temp:/app/ndvi/temp
+      - /mnt/mass2/ndvi/map_data:/app/ndvi/map_data
+networks:
+  default:
+    external:
+      name: elastic_net
