@@ -22,10 +22,11 @@ requirements: python 3.8+, upgraded pip, PostgreSQL server
 3. Create new venv
 4. Install requirements and export environment variables listed below:
 ```bash
-python3 -m venv some_env
-source some_env/bin/activate
-python3 -m pip install -r requirements.txt
-export SERVER_HOST="0.0.0.0" ...
+$ git clone https://github.com/Wayfarer545/FastAPI_NDVI && cd FastAPI_NDVI
+$ python3 -m venv some_env
+$ source some_env/bin/activate
+$ python3 -m pip install -r requirements.txt
+$ export SERVER_HOST="0.0.0.0" ...
 ```
 ...or you can use .env file  
 In this case the project root directory .env file should be specified as: 

@@ -147,18 +147,21 @@ class MainProcessor:
         self.db = database
         self.api = scihub
         np.seterr(divide='ignore', invalid='ignore')
+        self._main()
 
-        self.download_data = self.product_list_former()
+
+    def _main(self):
+        self.download_data = self._product_list_former()
         if not self.download_data:
             print("[INFO] Нет данных для скачивания")
             return
         self.work_dict, self.product_list = self.download_data
-        self.sat_dataset_download()
-        self.dataset_extractor()
-        self.image_processor()
+        self._sat_dataset_download()
+        self._dataset_extractor()
+        self._image_processor()
 
     # Поиск необработанных полей и формирование списка загрузки
-    def product_list_former(self) -> tuple or bool:
+    def _product_list_former(self) -> tuple or bool:
         print("[INFO] Поиск спутниковых данных")
         work_dict = {}
         product_id_list = []
@@ -176,7 +179,7 @@ class MainProcessor:
             return False
 
     # Скачивание и распаковка пакета карт по индексу
-    def sat_dataset_download(self):
+    def _sat_dataset_download(self):
         print(f"[INFO] Начинаю скачивание")
         try:
             self.api.download_all(self.product_list, directory_path="./ndvi/temp")
@@ -187,7 +190,7 @@ class MainProcessor:
 
     # Извлечение спутниковых данных из архива
     @staticmethod
-    def dataset_extractor():
+    def _dataset_extractor():
         print("[INFO] Извлечение данных")
         for element in os.scandir("./ndvi/temp"):
             if element.name.endswith(".zip"):
@@ -195,22 +198,22 @@ class MainProcessor:
                 os.remove(f"./ndvi/temp/{element.name}")
 
     # Комлексный метод обработки изображений
-    def image_processor(self):
+    def _image_processor(self):
         print("[INFO] Обработка карт")
         for item in self.work_dict.items():
             file_id = item[0]
-            b4_path, b8_path = self.pathfinder(item[1]["file_name"])
-            self.map_composer(file_id, b4_path, b8_path)
+            b4_path, b8_path = self._pathfinder(item[1]["file_name"])
+            self._map_composer(file_id, b4_path, b8_path)
             with open(f"./ndvi/map_data/{file_id}/{file_id}.geojson", "w") as file:
                 file.write(json.dumps(item[1]["geojson"]))
                 file.close()
-            self.shaper(file_id)
-            self.db_status_updater(file_id)
+            self._shaper(file_id)
+            self._db_status_updater(file_id)
         print("[INFO] Обработка завершена")
 
     # Наложение диапазонов по заданной формуле
     @staticmethod
-    def map_composer(field_id, b4_path, b8_path):
+    def _map_composer(field_id, b4_path, b8_path):
         with rio.open(b4_path) as band_4:
             red = band_4.read(1).astype('float')
         with rio.open(b8_path) as band_8:
@@ -232,7 +235,7 @@ class MainProcessor:
 
     # Обрезка искомой области карты
     @staticmethod
-    def shaper(field_id):
+    def _shaper(field_id):
         with rio.open(f"./ndvi/map_data/{field_id}/NDVI.tiff") as input_image:
             geojson_file = gpd.read_file(f"./ndvi/map_data/{field_id}/{field_id}.geojson")
             borders = geojson_file.to_crs(str(input_image.crs))
@@ -253,7 +256,7 @@ class MainProcessor:
 
     # Поиск карт необходимых диапазонов в заданном каталоге
     @staticmethod
-    def pathfinder(catalog):
+    def _pathfinder(catalog):
         with os.scandir(f"./ndvi/temp/{catalog}/GRANULE/") as entries:
             for entry in entries:
                 path = f"./ndvi/temp/{catalog}/GRANULE/{entry.name}/IMG_DATA/"
@@ -265,7 +268,7 @@ class MainProcessor:
                 return b4_path, b8_path
 
     # Обновление статуса обработки поля в базе
-    def db_status_updater(self, record_id, stat="true"):
+    def _db_status_updater(self, record_id, stat="true"):
         list_script = f"""UPDATE ndvi 
                         SET status = {stat}
                         WHERE id = (%s);"""
@@ -277,7 +280,7 @@ class MainProcessor:
 
     # Удаление спутниковых данных
     @staticmethod
-    def temp_flusher():
+    def _temp_flusher():
         if len(os.listdir("./ndvi/temp")) > 0:
             try:
                 for map_dir in os.scandir("./ndvi/temp"):
@@ -289,5 +292,5 @@ class MainProcessor:
                 pass
 
     def __del__(self):
-        self.temp_flusher()
+        self._temp_flusher()
 
